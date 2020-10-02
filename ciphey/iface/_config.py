@@ -41,6 +41,26 @@ class Cache:
         self._cache[ctext] = {}
         return True
 
+    
+    class Cache:
+    """Used to track state between levels of recursion to stop infinite loops, and to optimise repeating actions"""
+
+    def __init__(self):
+        self._cache: Dict[Any, Dict[str, Any]] = {}
+
+    def mark_ctext(self, ctext: Any) -> bool:
+        if (type(ctext) == str or type(ctext) == bytes) and len(ctext) < 4:
+            logger.trace(f"Candidate {ctext.__repr__()} too short!")
+            return False
+
+        if ctext in self._cache:
+            logger.trace(f"Deduped {ctext.__repr__()}")
+            return False
+
+        logger.trace(f"New ctext {ctext.__repr__()}")
+
+        self._cache[ctext] = {}
+        return True
     def get_or_update(self, ctext: Any, keyname: str, get_value: Callable[[], Any]):
         # Should have been marked first
         target = self._cache[ctext]
